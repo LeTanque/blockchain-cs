@@ -16,3 +16,6 @@ https://imgur.com/xSlgvtl
 * Basic Wallet (basic_wallet_p)
 
 Based on blockchain by dvf.  Used under MIT license:  https://github.com/dvf/blockchain
+
+### Server reloads on file save
+FLASK_APP=blockchain.py FLASK_ENV=development flask run
