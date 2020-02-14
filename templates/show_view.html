@@ -1,0 +1,35 @@
+
+
+
+<html>
+    <body>
+        <div>
+            <strong>Index</strong>
+            {{nkotb['index']}}
+        </div>
+        <div>
+            <strong>Timestamp</strong>
+            {{nkotb['timestamp']}}
+        </div>
+        <div>
+            <strong>Proof</strong>
+            {{nkotb['proof']}}
+        </div>
+        <div>
+            <strong>Previous Hash</strong>
+            {{nkotb['previous_hash']}}
+        </div>
+        <br />
+        <h1>Chain</h1>
+        <div>
+            <strong>Previous Hashes</strong>
+            {% for item in previous_hashes %}
+                <p> {{ item }} </p>
+            {% endfor %}
+        </div>
+        <div>
+            <strong>Length</strong>
+            {{ length }}
+        </div>
+    </body>
+</html>

@@ -33,3 +33,32 @@ Create a client application that will:
 * (Stretch) Handle non-json responses sent by the server in the event of an error, without crashing the miner
 * Stretch: Add a timer to keep track of how long it takes to find a proof
 
+
+
+
+# Notes from client_mining_p
+## Proof of Work
+Simple Proof of Work Algorithm
+
+Stringify the block and look for a proof.
+
+Loop through possibilities, checking each one against `valid_proof`
+in an effort to find a number that is a valid proof
+
+:return: A valid proof for the provided block
+
+
+## Validator
+Validates the Proof:  Does hash(block_string, proof) contain 6
+leading zeroes?  Return true if the proof is valid
+
+:param block_string: <string> The stringified block to use to
+check in combination with `proof`
+
+:param proof: <int?> The value that when combined with the
+stringified previous block results in a hash that has the
+correct number of leading zeroes.
+
+:return: True if the resulting hash is a valid proof, False otherwise
+
+

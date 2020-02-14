@@ -5,13 +5,15 @@ from uuid import uuid4
 
 from flask import Flask, jsonify, request, render_template
 
+
 class Blockchain(object):
     def __init__(self):
         self.chain = []
         self.current_transactions = []
+        # self.nodes = set()
 
         # Create the genesis block
-        self.new_block(previous_hash="I'm a teapot.", proof=100)
+        self.new_block(previous_hash="The beginning, like the end.", proof=100)
 
     def new_block(self, proof, previous_hash=None):
         # Create a new Block in the Blockchain
@@ -142,39 +144,57 @@ def receive_new_transaction():
     #   containing the transaction
     data = request.get_json()
 
+    # Check that the required fields are in the POST'ed data
+    # Use this array of values to search through data
     required = ['sender', 'recipient', 'amount']
     if not all(k in data for k in required):
-        # TODO Better error messaging
         return "Missing values", 400
+
+    # Create the transaction
     index = blockchain.new_transaction(data['sender'], data['recipient'], data['amount'])
     response = {'message': f'Transactions will be included in block {index}'}
-    return jsonify(response), 200
+    return jsonify(response), 201
 
 
 @app.route('/mine', methods=['POST'])
 def mine():
-    data = request.get_json()
+    # Handle Non-JSON response
+    values = request.get_json()
+    # Check that the required fields are in the POST'ed data
+    required = ['proof', 'id']
+    if not all(k in values for k in required):
+        response = {'message': "Missing Values"}
+        return jsonify(response), 400
 
-    # Run the proof of work algorithm to get the next proof
-    proof = data['proof']
+    proof = values.get('proof')
 
+    # Is proof valid?
     last_block = blockchain.last_block
     last_block_string = json.dumps(last_block, sort_keys=True)
 
     if blockchain.valid_proof(last_block_string, proof):
-        # Forge the new Block by adding it to the chain with the proof
-        previous_hash = blockchain.hash(blockchain.last_block)
-        block_index = blockchain.new_transaction(0, data['id'], 1)
-        new_block = blockchain.new_block(proof, previous_hash)
+        # Forge the new BLock by adding it to the chain
+        previous_hash = blockchain.hash(last_block)
+        block = blockchain.new_block(proof, previous_hash)
+
+        # Give a reward for finding the proof.
+        # The sender is "0" to signify that this node has mine a new coin
+        blockchain.new_transaction(
+            sender="0",
+            recipient=node_identifier,
+            amount=1,
+        )
         response = {
-            # TODO: Send a JSON response with the new block
-            "block": new_block,
-            "reward": f"Reward paid in block {block_index}"
+            'message': "New Block Forged",
+            'index': block['index'],
+            'transactions': block['transactions'],
+            'proof': block['proof'],
+            'previous_hash': block['previous_hash'],
         }
         return jsonify(response), 200
     else:
         response = {
-            "message": "Bad proof"
+            'message': "Proof was invalid or already submitted."
         }
         return jsonify(response), 200
 
@@ -200,7 +220,11 @@ def mine_chain():
     previous_hashes = [x for x in blockchain.chain]
     length = len(blockchain.chain)
 
-    return render_template("show_view.html", previous_hashes=previous_hashes, nkotb=nkotb, length=length), 200
+    return render_template("show_view.html", 
+    template_folder='./templates',
+    previous_hashes=previous_hashes, 
+    nkotb=nkotb, 
+    length=length), 200
 
 
 @app.route('/last_block', methods=['GET'])
